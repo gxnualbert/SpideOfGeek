@@ -51,14 +51,14 @@ class SpiderOfQzone(object):
         singlePeopleSoup=BeautifulSoup(people,"lxml")
         
         info = {}
-        info["NickName"]=singlePeopleSoup.find("a", "f-name").get_text().encode("utf-8")
+        info["NickName"]=singlePeopleSoup.find("a", "f-name")
         print info["NickName"]
 #         info["PostTime"]=""
 #         info["Device"]=""
 #         info["Browse People"]=""
 #         info["Content"]=""
         
-        return info
+#         return info
         
         
         
@@ -70,8 +70,14 @@ class SpiderOfQzone(object):
          
      
     def getPeoples(self,soup):   #single people
-        singlePagePeople=soup.find_all("li", "f-single")
-         
+
+        peoplesList=soup.find_all("a","f-name")
+        for i in peoplesList:
+            print i.get_text().encode("utf-8")
+        
+#         peoplesList2=soup.find_all("li", "f-single")
+#         print peoplesList2
+#         return peoplesList
 #         for a in range(len(singlePagePeople)):
 #             people=singlePagePeople[a]
 #      
@@ -94,47 +100,62 @@ class SpiderOfQzone(object):
 #             f.writelines('learnnum:' + each['learnnum'].encode("utf-8").replace("\t","").replace("\n","")+'\n\n\n')
         f.close()
 if __name__ == '__main__':
-    account=""
-    pwd="01"
+    account="12"
+    pwd="H"
     classinfo = []
     profile_dir=r"C:\Users\Administrator\AppData\Local\Google\Chrome\User Data"
     chrome_options=webdriver.ChromeOptions()  
     chrome_options.add_argument("user-data-dir="+os.path.abspath(profile_dir))  
     driver = webdriver.Chrome(chrome_options=chrome_options)  
     driver.implicitly_wait(30)
+    
     mySpider=SpiderOfQzone()
     
     mySpider.loginQzone(driver, account, pwd)
-    time.sleep(8)
-    m=str(driver.page_source())
-    soup = BeautifulSoup(m)
-    b=soup.find_all("a")
-    print b
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#     pageSourceSoup=mySpider.getPageSource(driver)
-#     peoples=mySpider.getPeoples(pageSourceSoup)
-#     for i in range(len(peoples)):
-#         singlePeople=peoples[i]
-#         mySpider.getPeopleInfo(singlePeople)
-
-
-
+    time.sleep(10)
+    postTimelist=[]
+    for i in range(10000):
+#         driver.execute_script("window.scrollBy(0,4000)", "")
+#         time.sleep(10)
+#         pageSourceSoup = BeautifulSoup(driver.page_source,"lxml")
+#         peoplesList=pageSourceSoup.find_all("a","f-name")
+#         for i in peoplesList:
+#             singleName=i.get_text().encode("utf-8")
+#             if singleName in namelist:
+#                 print "pass"
+#             else:
+#                 namelist.append(singleName)
+#                 print singleName
+# 
+#         time.sleep(5)
+        time.sleep(10)
+        f = open('QzoneUserInfo.txt','a')
+        pageSourceSoup = BeautifulSoup(driver.page_source,"lxml")
+        peoplesList=pageSourceSoup.find_all("li","f-single")
+        for a in peoplesList:
+            if a:
+                if a.find("span","state"):
+                    postTime=a.find("span","state").get_text().encode("utf-8").replace("\t","").replace("\n","")
+                    if  postTime not in postTimelist:
+                        if a.find("a","f-name"):
+                            singleName=a.find("a","f-name").get_text().encode("utf-8").replace("\t","").replace("\n","")
+                            print singleName
+                            f.writelines("NickName: "+singleName+ '\n')
+                        print postTime
+                        f.writelines('PostTime:' +postTime)
+#                         if a.find("i","icon-browse"):
+#                             viewPeople=a.find("i","icon-browse").get_text().encode("utf-8").replace("\t","").replace("\n","")
+#                             print viewPeople
+                        if a.find("div","f-info"):
+                            content=a.find("div","f-info").get_text().encode("utf-8").replace("\t","").replace("\n","")
+                            print content
+                            f.writelines('Content:' +content+"\n\n")
+                            
+        f.close()
+        driver.execute_script("window.scrollBy(0,3000)", "")
+        print "scroll times:" +str(i+1)
+        
+        
 
 
 
